@@ -1,6 +1,4 @@
 import numpy as np
-import argparse
-import matplotlib.pyplot as plt
 
 
 def gen_randomized_grids(m: int, n: int, block_intensity: float) -> np.ndarray:
@@ -32,36 +30,24 @@ def gen_guaranteed_path(start: str, end: str, grids: np.ndarray) -> np.ndarray:
     return grids
 
 
-def main(m: int, n: int, block_intensity: float, guarantee: str, start: str, end: str) -> None:
+def get_grids(m: int, n: int, block_intensity: float, guarantee: str, start: str, end: str) -> np.ndarray:
+    """overall function to generate grids, with optional choice to create guaranteed path
+
+    :param m: x axis of matrix
+    :param n: y axis of matrix
+    :param block_intensity: how much obstacles will appear in grids
+    :param guarantee: if a guaranteed path will be generated
+    :param start: comma separated point x,y
+    :param end: comma separated point x,y
+    :return: 2d array with complete grid info for searching and viz
+    """
     grids = gen_randomized_grids(m, n, block_intensity)
 
     if guarantee == "True":
         grids = gen_guaranteed_path(start, end, grids)
 
-    fig, ax = plt.subplots(figsize=(10, 10))
-
+    # force start, end to available
     grids[int(start.split(",")[1]), int(start.split(",")[0])] = 0
     grids[int(end.split(",")[1]), int(end.split(",")[0])] = 0
 
-    ax.imshow(grids, cmap=plt.cm.Paired)
-
-    start_pt = [int(a) for a in start.split(",")]
-    end_pt = [int(a) for a in end.split(",")]
-
-    ax.scatter(int(start_pt[0]), int(start_pt[1]), marker=".", color="red", s=100)
-    ax.scatter(int(end_pt[0]), int(end_pt[1]), marker=".", color="green", s=100)
-    plt.show()
     return grids
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='create basic grid')
-    parser.add_argument('--m', type=str, required=True, help='x axis length')
-    parser.add_argument('--n', type=str, required=True, help='y axis length')
-    parser.add_argument('--intensity', type=str, required=True, help='binomial dist for obstacle intensity')
-    parser.add_argument('--guarantee', type=str, required=True, help='if guarantee a path exist from start to end')
-    parser.add_argument('--start', type=str, required=False, help='given start point')
-    parser.add_argument('--end', type=str, required=False, help='given end point')
-
-    args = parser.parse_args()
-    main(int(args.m), int(args.n), float(args.intensity), args.guarantee, args.start, args.end)
